@@ -1,145 +1,679 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bolão</title>
-  <style>
-    body { font-family: Arial, sans-serif; text-align: center; }
-    #pix-container, #confirmation, #hidden-content { display: none; }
-    #timer { color: red; font-size: 20px; }
-    input[type="text"] { padding: 10px; width: 80%; margin-top: 10px; border-radius: 5px; border: 1px solid #ccc; font-size: 16px; }
-    #pix-key-input { width: 80%; padding: 10px; margin-top: 20px; font-size: 16px; border-radius: 5px; border: 1px solid #ccc; background-color: #f9f9f9; text-align: center; }
-    button { padding: 10px 20px; font-size: 16px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
-    button:hover { background-color: #45a049; }
-    #copy-button { background-color: #2196F3; }
-    #copy-button:hover { background-color: #0b7dda; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Palpites da Danny</title>
+<link rel="icon" type="image/webp" sizes="32x32" href="icons/favicon-32x32.webp">
+<link rel="icon" type="image/webp" sizes="16x16" href="icons/favicon-16x16.webp">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon-180x180.webp">
+<link rel="icon" href="icons/android-chrome-192x192.webp" type="image/webp" sizes="192x192">
+<link rel="icon" href="icons/android-chrome-512x512.webp" type="image/webp" sizes="512x512">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1b5e20">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #1b5e20;
+    --primary-light: #2e7d32;
+    --primary-dark: #0d3b12;
+    --accent: #c9a227;
+    --accent-soft: #f5e6b8;
+    --bg: #f4f7f2;
+    --card: #ffffff;
+    --text: #1a2e1a;
+    --text-muted: #5a6b5a;
+    --border: #d4e0d4;
+    --shadow: 0 4px 24px rgba(27, 94, 32, 0.08);
+    --shadow-hover: 0 12px 40px rgba(27, 94, 32, 0.14);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.5;
+    overflow-x: hidden;
+  }
+
+  #particles {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Header */
+  header {
+    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+    color: #fff;
+    padding: 20px 16px 18px;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.18);
+    animation: headerSlide 0.6s ease-out;
+  }
+
+  @keyframes headerSlide {
+    from { transform: translateY(-100%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  .header-inner { max-width: 900px; margin: 0 auto; }
+
+  .brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.75rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+
+  .brand span {
+    color: var(--accent);
+    display: inline-block;
+    transition: transform 0.3s ease;
+  }
+
+  .brand:hover span { transform: scale(1.05); }
+
+  .tagline {
+    font-size: 0.85rem;
+    font-weight: 500;
+    opacity: 0.9;
+    letter-spacing: 0.3px;
+    margin-bottom: 12px;
+  }
+
+  #data-hora {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.12);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    backdrop-filter: blur(6px);
+    transition: background 0.3s ease;
+  }
+
+  #data-hora:hover { background: rgba(255,255,255,0.2); }
+
+  /* Categorias com imagens */
+  .categorias {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 10px;
+    max-width: 900px;
+    margin: 20px auto 8px;
+    padding: 0 16px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .cat-card {
+    background: var(--card);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    text-align: center;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+    cursor: pointer;
+  }
+
+  .cat-card:hover {
+    transform: translateY(-6px) scale(1.03);
+    box-shadow: var(--shadow-hover);
+    border-color: var(--accent);
+  }
+
+  .cat-card img {
+    width: 100%;
+    height: 70px;
+    object-fit: cover;
+    display: block;
+  }
+
+  .cat-card span {
+    display: block;
+    padding: 8px 4px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--primary-dark);
+  }
+
+  /* Main */
+  main {
+    padding: 16px 16px 120px;
+    max-width: 900px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
+  }
+
+  .loading, .erro {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 40px 24px;
+    text-align: center;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-weight: 500;
+    animation: fadeIn 0.5s ease;
+  }
+
+  .loading::before {
+    content: '';
+    display: block;
+    width: 36px; height: 36px;
+    margin: 0 auto 16px;
+    border: 3px solid var(--border);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Cards de palpites */
+  .card {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 22px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), 
+                box-shadow 0.3s ease, border-color 0.3s ease;
+    opacity: 0;
+    transform: translateY(24px);
+    animation: cardEntrance 0.55s ease forwards;
+  }
+
+  .card:nth-child(1) { animation-delay: 0.05s; }
+  .card:nth-child(2) { animation-delay: 0.12s; }
+  .card:nth-child(3) { animation-delay: 0.19s; }
+  .card:nth-child(4) { animation-delay: 0.26s; }
+  .card:nth-child(5) { animation-delay: 0.33s; }
+  .card:nth-child(6) { animation-delay: 0.40s; }
+  .card:nth-child(7) { animation-delay: 0.47s; }
+  .card:nth-child(8) { animation-delay: 0.54s; }
+
+  @keyframes cardEntrance {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-hover);
+    border-color: #a8c5a8;
+  }
+
+  .top-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .animal-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--primary-dark);
+    transition: transform 0.25s ease;
+  }
+
+  .card:hover .animal-badge { transform: translateX(2px); }
+
+  .grupo-badge {
+    background: var(--accent-soft);
+    color: #7a6a1f;
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 20px;
+    letter-spacing: 0.3px;
+    transition: transform 0.25s ease, background 0.25s ease;
+  }
+
+  .card:hover .grupo-badge {
+    transform: scale(1.05);
+    background: #f0d98a;
+  }
+
+  .info-loteria {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+
+  .info-item {
+    background: #f8faf6;
+    border-radius: 10px;
+    padding: 12px 14px;
+    transition: background 0.25s ease, transform 0.25s ease;
+  }
+
+  .info-item:hover {
+    background: #eef5eb;
+    transform: translateY(-2px);
+  }
+
+  .info-item label {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+  }
+
+  .info-item span {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text);
+  }
+
+  .lista-milhares {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .milhar-card {
+    background: linear-gradient(145deg, #f8faf6, #eef5eb);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 8px;
+    text-align: center;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .milhar-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent 40%, rgba(201, 162, 39, 0.12));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .milhar-card:hover {
+    border-color: var(--accent);
+    background: linear-gradient(145deg, #fffdf5, #faf3d9);
+    transform: translateY(-4px) scale(1.04);
+    box-shadow: 0 8px 20px rgba(201, 162, 39, 0.18);
+  }
+
+  .milhar-card:hover::before { opacity: 1; }
+
+  .milhar-numero {
+    font-size: 1.45rem;
+    font-weight: 700;
+    color: var(--primary-dark);
+    letter-spacing: 0.5px;
+    font-variant-numeric: tabular-nums;
+    transition: color 0.25s ease, transform 0.25s ease;
+    position: relative;
+    z-index: 1;
+  }
+
+  .milhar-card:hover .milhar-numero {
+    color: #0d3b12;
+    transform: scale(1.06);
+  }
+
+  .milhar-card small {
+    display: block;
+    margin-top: 4px;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    position: relative;
+    z-index: 1;
+  }
+
+  .botoes { display: flex; gap: 10px; }
+
+  .botoes button {
+    flex: 1;
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 14px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.88rem;
+    font-family: inherit;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.25s ease, transform 0.2s ease, box-shadow 0.25s ease;
+  }
+
+  .botoes button:hover {
+    background: var(--primary-light);
+    box-shadow: 0 4px 14px rgba(27, 94, 32, 0.3);
+  }
+
+  .botoes button:active { transform: scale(0.97); }
+
+  .botoes button .ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.35);
+    transform: scale(0);
+    animation: rippleEffect 0.55s linear;
+    pointer-events: none;
+  }
+
+  @keyframes rippleEffect {
+    to { transform: scale(4); opacity: 0; }
+  }
+
+  /* Footer */
+  footer {
+    background: var(--primary-dark);
+    padding: 14px 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 100;
+    box-shadow: 0 -2px 16px rgba(0,0,0,0.15);
+    animation: footerSlide 0.6s ease-out 0.2s both;
+  }
+
+  @keyframes footerSlide {
+    from { transform: translateY(100%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  footer button {
+    flex: 1;
+    max-width: 130px;
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 10px;
+    padding: 11px 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.78rem;
+    font-family: inherit;
+    transition: background 0.25s ease, transform 0.2s ease;
+  }
+
+  footer button:hover {
+    background: rgba(255,255,255,0.16);
+    transform: translateY(-2px);
+  }
+
+  footer button:active { transform: scale(0.96); }
+
+  .btn-jogar {
+    background: linear-gradient(135deg, var(--accent), #b8941f) !important;
+    color: #1a1500 !important;
+    border: none !important;
+    font-weight: 700 !important;
+    box-shadow: 0 2px 12px rgba(201, 162, 39, 0.35);
+    animation: pulseJogar 2.2s ease-in-out infinite;
+  }
+
+  .btn-jogar:hover {
+    filter: brightness(1.1);
+    animation: none;
+    transform: translateY(-2px);
+  }
+
+  @keyframes pulseJogar {
+    0%, 100% { box-shadow: 0 2px 12px rgba(201, 162, 39, 0.35); }
+    50% { box-shadow: 0 4px 20px rgba(201, 162, 39, 0.55); }
+  }
+
+  .mensagem-copy {
+    position: fixed;
+    left: 50%;
+    bottom: 90px;
+    transform: translateX(-50%) translateY(16px) scale(0.95);
+    background: var(--primary-dark);
+    color: #fff;
+    padding: 12px 22px;
+    border-radius: 10px;
+    opacity: 0;
+    transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 200;
+    font-weight: 600;
+    font-size: 0.9rem;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+  }
+
+  .mensagem-copy.mostrar {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+
+  @media (max-width: 700px) {
+    .categorias { grid-template-columns: repeat(3, 1fr); }
+    .cat-card img { height: 60px; }
+  }
+
+  @media (max-width: 520px) {
+    .brand { font-size: 1.45rem; }
+    .info-loteria { grid-template-columns: 1fr; }
+    .milhar-numero { font-size: 1.3rem; }
+    footer button { font-size: 0.72rem; padding: 10px 4px; }
+    .categorias { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .cat-card span { font-size: 0.68rem; }
+  }
+</style>
 </head>
 <body>
 
-  <h1>Bolão - Participe Agora!</h1>
-  <p>Digite seus dados para gerar seu Pix de R$10,00.</p>
+<canvas id="particles"></canvas>
 
-  <input type="text" id="name" placeholder="Nome"><br><br>
-  <input type="text" id="phone" placeholder="Telefone"><br><br>
-  <input type="text" id="pix" placeholder="Chave Pix"><br><br>
-
-  <button onclick="generatePix()">Gerar Pagamento</button>
-
-  <!-- Caixa de texto para exibir a chave Pix -->
-  <div id="pix-container">
-    <input type="text" id="pix-key-input" readonly>
-    <button id="copy-button" onclick="copyPix()">Copiar Chave</button>
-    <p id="timer"></p>
+<header>
+  <div class="header-inner">
+    <div class="brand">Palpites da <span>Danny</span></div>
+    <div class="tagline">Fazenda dos Números da Sorte</div>
+    <div id="data-hora"></div>
   </div>
+</header>
 
-  <p id="confirmation">Pagamento Confirmado! Você está no bolão 🎉</p>
-
-  <!-- Conteúdo do bolão, será preenchido com os palpites -->
-  <div id="hidden-content">
-    <h2>Bolão Liberado!</h2>
-    <ul id="palpites-list"></ul>
-    <button onclick="window.location.href='https://www.acertosclub.com'">Promotor</button>
+<!-- Categorias com imagens do outro código -->
+<div class="categorias">
+  <div class="cat-card" onclick="window.open('https://app.bancabrasileira.com.br/pr/uVZ2pAvP','_blank')">
+    <img src="icons/fazendinha.webp" alt="Fazendinha" loading="lazy">
+    <span>Fazendinha</span>
   </div>
+  <div class="cat-card" onclick="window.open('https://app.bancabrasileira.com.br/pr/uVZ2pAvP','_blank')">
+    <img src="icons/jogo-do-bicho.webp" alt="Jogo do Bicho" loading="lazy">
+    <span>Jogo do Bicho</span>
+  </div>
+  <div class="cat-card" onclick="window.open('https://app.bancabrasileira.com.br/pr/uVZ2pAvP','_blank')">
+    <img src="icons/loterias.webp" alt="Loterias" loading="lazy">
+    <span>Loterias</span>
+  </div>
+  <div class="cat-card" onclick="window.open('https://app.bancabrasileira.com.br/pr/uVZ2pAvP','_blank')">
+    <img src="icons/cassino.webp" alt="Cassino" loading="lazy">
+    <span>Cassino</span>
+  </div>
+  <div class="cat-card" onclick="window.open('https://app.bancabrasileira.com.br/pr/uVZ2pAvP','_blank')">
+    <img src="icons/bingo.webp" alt="Bingo" loading="lazy">
+    <span>Bingo</span>
+  </div>
+  <div class="cat-card" onclick="window.open('https://app.bancabrasileira.com.br/pr/uVZ2pAvP','_blank')">
+    <img src="icons/futebol.webp" alt="Futebol" loading="lazy">
+    <span>Futebol</span>
+  </div>
+</div>
 
-  <script>
-    const googleScriptURL = "https://script.google.com/macros/s/AKfycbxKnNCxut88AhIMzH_eA-Q3-Pfiy0qPkmFRrKbA65oYooBBXvOQU3rghrN6to0W-wlQ3Q/exec";
-    let paymentId = null;
-    let countdown = 90;
-    let checkPaymentInterval = null;
+<main id="lista-palpite">
+  <div class="loading">Carregando palpites...</div>
+</main>
 
-    function generatePix() {
-      const name = document.getElementById("name").value;
-      const phone = document.getElementById("phone").value;
-      const pix = document.getElementById("pix").value;
+<footer>
+  <button onclick="alert('📱 Suporte: Entre em contato pelo WhatsApp da banca!')">Suporte</button>
+  <button onclick="navigator.share ? navigator.share({title:'Palpites da Danny',text:'Confira os palpites!',url:location.href}) : alert('Compartilhe o link da página!')">Compartilhar</button>
+  <button id="instalarApp">Download</button>
+  <button class="btn-jogar" onclick="window.open('https://app.bancabrasileira.com.br/pr/uVZ2pAvP','_blank')">JOGAR</button>
+</footer>
 
-      if (!name || !phone || !pix) {
-        alert("Preencha todos os campos!");
-        return;
+<script>
+if('serviceWorker' in navigator){navigator.serviceWorker.register('service-worker.js');}
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;});
+document.addEventListener('click',async e=>{
+if(e.target.id==='instalarApp'){
+if(deferredPrompt){deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;}
+else alert('Use o menu do navegador e escolha Adicionar à tela inicial.');
+}});
+const API_URL='https://script.google.com/macros/s/AKfycbz5IvvaLjGuhvBD6xHAwuTsVBA9wEFu2t4rbgpwx4YMc6B-_bhhNY1WwkEAvPfQoogXsw/exec';
+const lista=document.getElementById('lista-palpite');
+async function carregarPalpites(){try{const r=await fetch(API_URL);const j=await r.json();lista.innerHTML='';
+(j.data||[]).forEach(p=>{const c=document.createElement('div');c.className='card';c.innerHTML=`<div class="top-card"><div class="animal-badge">🐾 ${p.animal}</div><div class="grupo-badge">Grupo ${p.grupo}</div></div><div class="info-loteria"><div class="info-item"><label>Loteria</label><span>${p.loteria}</span></div><div class="info-item"><label>Próxima Extração</label><span>${p.horario}</span></div></div><div class="lista-milhares">${p.milhares.map((m,i)=>`<div class="milhar-card"><div class="milhar-numero">${m.milhar}</div><small>${i+1}º • Dz ${m.dezena}</small></div>`).join('')}</div><div class="botoes"><button onclick='compartilhar(${JSON.stringify(p)})'>📲 Compartilhar</button><button onclick='copiarMilhar(${JSON.stringify(p)})'>📋 Copiar</button></div>`;lista.appendChild(c);});}catch(e){lista.innerHTML='<div class="erro">Erro ao carregar os palpites. Tente novamente.</div>';}}
+function compartilhar(p){
+  const agora = new Date();
+  const data = agora.toLocaleDateString('pt-BR');
+  const hora = agora.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  const listaMilhares = p.milhares.map(m => m.milhar).join('\n');
+  const texto = `📅 Data: ${data}
+🕒 Horário: ${hora}
+🎰 Loteria: ${p.loteria}
+⏳ Próxima Extração: ${p.horario}
+🐾 Animal: ${p.animal}
+🎯 Grupo: ${p.grupo}
+🔥 PALPITES DA DANNY
+----------------------------------
+💎 Milhar:
+${listaMilhares}
+🍀 Boa sorte!
+🌐 palpite.bancabrasileira.site`;
+  const url = `https://wa.me/?text=${encodeURIComponent(texto)}`;
+  window.open(url,'_blank');
+}
+function copiarMilhar(p){navigator.clipboard.writeText(p.milhares.map(x=>x.milhar).join(', '));mostrar('Milhares copiadas!');}
+function mostrar(t){let d=document.createElement('div');d.className='mensagem-copy';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.classList.add('mostrar'),50);setTimeout(()=>d.remove(),2500);}
+function relogio(){document.getElementById('data-hora').textContent='📅 '+new Date().toLocaleString('pt-BR')}
+carregarPalpites();relogio();setInterval(relogio,1000);setInterval(carregarPalpites,60000);
+
+/* Ripple */
+document.addEventListener('click', function(e) {
+  const btn = e.target.closest('.botoes button');
+  if (!btn) return;
+  const ripple = document.createElement('span');
+  ripple.className = 'ripple';
+  const rect = btn.getBoundingClientRect();
+  const size = Math.max(rect.width, rect.height);
+  ripple.style.width = ripple.style.height = size + 'px';
+  ripple.style.left = (e.clientX - rect.left - size / 2) + 'px';
+  ripple.style.top = (e.clientY - rect.top - size / 2) + 'px';
+  btn.appendChild(ripple);
+  setTimeout(() => ripple.remove(), 600);
+});
+
+/* Partículas */
+(function() {
+  const canvas = document.getElementById('particles');
+  const ctx = canvas.getContext('2d');
+  let particles = [];
+  let mouse = { x: null, y: null, radius: 120 };
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+
+  class Particle {
+    constructor() { this.reset(true); }
+    reset(initial = false) {
+      this.x = Math.random() * canvas.width;
+      this.y = initial ? Math.random() * canvas.height : canvas.height + 10;
+      this.size = Math.random() * 3.5 + 1.2;
+      this.speedY = Math.random() * 0.6 + 0.15;
+      this.speedX = (Math.random() - 0.5) * 0.4;
+      this.opacity = Math.random() * 0.35 + 0.12;
+      this.color = Math.random() > 0.55 
+        ? `rgba(46, 125, 50, ${this.opacity})`
+        : `rgba(201, 162, 39, ${this.opacity})`;
+      this.wobble = Math.random() * Math.PI * 2;
+      this.wobbleSpeed = Math.random() * 0.02 + 0.008;
+    }
+    update() {
+      this.wobble += this.wobbleSpeed;
+      this.x += this.speedX + Math.sin(this.wobble) * 0.3;
+      this.y -= this.speedY;
+      if (mouse.x !== null) {
+        const dx = this.x - mouse.x;
+        const dy = this.y - mouse.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < mouse.radius) {
+          const force = (mouse.radius - dist) / mouse.radius;
+          this.x += dx * force * 0.03;
+          this.y += dy * force * 0.03;
+        }
       }
-
-      fetch(googleScriptURL, {
-        method: "POST",
-        body: JSON.stringify({ action: "generatePix", name, phone, pix }),
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.error) {
-          alert("Erro ao gerar Pix: " + data.error);
-          return;
-        }
-
-        document.getElementById("pix-key-input").value = data.pixKey; // Exibir somente a chave Pix
-        document.getElementById("pix-container").style.display = "block";
-        paymentId = data.paymentId;
-
-        startTimer();
-        checkPaymentInterval = setInterval(checkPayment, 10000); // Verificar pagamento a cada 10 segundos
-      });
+      if (this.y < -10 || this.x < -20 || this.x > canvas.width + 20) this.reset();
     }
-
-    function startTimer() {
-      document.getElementById("timer").innerText = `Tempo restante: ${countdown} segundos`;
-      const timerInterval = setInterval(() => {
-        countdown--;
-        document.getElementById("timer").innerText = `Tempo restante: ${countdown} segundos`;
-
-        if (countdown <= 0) {
-          clearInterval(timerInterval);
-          clearInterval(checkPaymentInterval);
-          alert("O tempo para confirmação do pagamento expirou.");
-          document.getElementById("pix-container").style.display = "none";
-        }
-      }, 1000);
+    draw() {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+      ctx.fillStyle = this.color;
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.size * 0.4, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity * 0.5})`;
+      ctx.fill();
     }
+  }
 
-    function checkPayment() {
-      fetch(googleScriptURL, {
-        method: "POST",
-        body: JSON.stringify({ action: "checkPayment", paymentId }),
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.status === "approved") {
-          clearInterval(checkPaymentInterval);
-          confirmPayment();
-        }
-      });
-    }
+  function init() {
+    particles = [];
+    const count = Math.min(Math.floor((canvas.width * canvas.height) / 18000), 70);
+    for (let i = 0; i < count; i++) particles.push(new Particle());
+  }
 
-    function confirmPayment() {
-      document.getElementById("pix-container").style.display = "none";
-      document.getElementById("confirmation").style.display = "none";
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => { p.update(); p.draw(); });
+    requestAnimationFrame(animate);
+  }
 
-      fetch(googleScriptURL, {
-        method: "POST",
-        body: JSON.stringify({ action: "getPalpites" })
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.palpites) {
-          const palpitesList = document.getElementById("palpites-list");
-          palpitesList.innerHTML = "";
-          data.palpites.forEach(palpite => {
-            const li = document.createElement("li");
-            li.textContent = palpite;
-            palpitesList.appendChild(li);
-          });
+  window.addEventListener('resize', () => { resize(); init(); });
+  window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+  window.addEventListener('mouseleave', () => { mouse.x = null; mouse.y = null; });
+  window.addEventListener('touchmove', e => {
+    if (e.touches[0]) { mouse.x = e.touches[0].clientX; mouse.y = e.touches[0].clientY; }
+  }, { passive: true });
+  window.addEventListener('touchend', () => { mouse.x = null; mouse.y = null; });
 
-          document.getElementById("hidden-content").style.display = "block";
-        }
-      });
-    }
-
-    function copyPix() {
-      const pixKey = document.getElementById("pix-key-input");
-      navigator.clipboard.writeText(pixKey.value).then(() => {
-        alert("Chave Pix copiada com sucesso!");
-      }).catch(() => {
-        alert("Erro ao copiar a chave Pix.");
-      });
-    }
-  </script>
+  resize(); init(); animate();
+})();
+</script>
 </body>
 </html>
